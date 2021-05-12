@@ -1,38 +1,57 @@
 from lib import USBDev
+from lib import FIFOWriter
+import time
+
+"""
+headset = USBDev.USBDev()
+headset.StartDevCheckThread()
+time.sleep(30)
+headset.CheckThreadRunning = False
+time.sleep(15)
+"""
+
+
+output = FIFOWriter.FIFOWriter()
+output.Open()
 
 headset = USBDev.USBDev()
+headset.StartDevCheckThread()
+
+print("Writing to FIFO at " + output.FIFO)
+BytesWritten = 0
+
+while True:
+    if headset.DevicePresent == False:
+        print("Waiting on headset...")
+        time.sleep(.5)
+        continue
+
+    packet = headset.RecvData()
+    if packet == None:
+        print("RecvData() returned None: {}".format(headset.LastError.strerror))
+        continue
+    # out = output.Write(bytearray.fromhex("deadbeef00"))
+    out = output.Write(packet)
+
+    if out:
+        BytesWritten += out
+    else:
+        print("Pausing output, no readers...")
+        time.sleep(.5)
+        continue
 
 
-headset.PollDev()
+    print("In write loop, error: " + str(output.LastError) + ", total bytes written: " + str(BytesWritten))
+    # time.sleep(.5)
+    # exit()
+
+# headset.PollDev()
 
 # print(headset.DeviceHandle)
 # print(headset.DeviceHandle.get_active_configuration())
 # print(headset.DeviceHandle.bNumConfigurations)
 
-for cfg in headset.DeviceHandle:
-    print(str(cfg.bConfigurationValue))
-    for intf in cfg:
-        print('\t' + \
-                         str(intf.bInterfaceNumber) + \
-                         ',' + \
-                         str(intf.bAlternateSetting) + \
-                         '\n')
-
-        for ep in intf:
-            print('\t\t' + \
-                             str(ep.bEndpointAddress) + \
-                             '\n')
-
-
-print("Direct Access:")
-for ep in headset.DeviceInterface:
-    print('\t\t' + \
-        str(ep.bEndpointAddress) + \
-        '\n')
-
-print("Inpoint is " + str(headset.InPoint))
-print("Outpoint is " + str(headset.OutPoint))
-
+"""
 headset.SendMagicPacket()
 
 with open('testout.bin', 'wb') as OutFile:
@@ -43,3 +62,5 @@ with open('testout.bin', 'wb') as OutFile:
         else:
             print("No data received")
             break
+"""
+

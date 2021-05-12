@@ -1,3 +1,4 @@
 *.pyc
 vsp-venv
 testout.bin
+tests

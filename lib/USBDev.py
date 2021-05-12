@@ -1,10 +1,13 @@
 import usb.core
 import usb.util
+import threading
+import time
 
 # The DJI Headset should be VID 0x2ca3 and PID 0x1f
 VID=0x2ca3
 PID=0x1f
 
+# Command verb to make the dump available:
 MagicPacket = "524d5654"
 
 # For the bulk transfer handle, we want interface 3:
@@ -43,6 +46,9 @@ class USBDev:
         self.DevicePresent = False       
         self.DeviceHandle = None
         self.ManuallyClaimed = False
+        self.CheckThreadRunning = False
+        self.ReadThreadRunning = False
+        self.LastError = None
 
     def PollDev(self):
         dev = usb.core.find(idVendor=VID, idProduct=PID)
@@ -75,16 +81,69 @@ class USBDev:
     def SendData(self, Data: bytearray):
         if not self.DeviceHandle:
             return None
-        rv = self.DeviceHandle.write(self.OutPoint.bEndpointAddress, Data)
+        try: 
+            rv = self.DeviceHandle.write(self.OutPoint.bEndpointAddress, Data, timeout=500)
+        except usb.core.USBError as er:
+            # print("DEBUG: Error in SendData(): {}".format(er.strerror))
+            # self.CheckThreadRunning = False
+            self.LastError = er
+            return None
         print("DEBUG: Wrote " + str(rv) + " bytes to outpoint")
+        return rv
     
     def SendMagicPacket(self):
         magic = bytearray.fromhex(MagicPacket)
-        self.SendData(magic)
+
+        # Try a few times to send the magic packet
+        # Headset initialization takes time, first attempt might time out
+        for x in range(5):       
+            bs = self.SendData(magic)
+            if bs == None:
+                # Need to retry, so we give it a 500ms pause to limit USB queries:
+                time.sleep(.5)
+                continue
+            else:
+                # Successful send
+                self.MagicPacketSent = True
+                return bs
 
     def RecvData(self):
         if not self.DeviceHandle:
             return None
-        rv = self.DeviceHandle.read(self.InPoint.bEndpointAddress, self.InPoint.wMaxPacketSize)
-        print("DEBUG: Read " + str(len(rv)) + " bytes from goggles")
+        if not self.MagicPacketSent:
+            sb = self.SendMagicPacket()
+            if not self.MagicPacketSent:
+                # It is still not sent, so don't bother trying to read
+                return None
+        try: 
+            rv = self.DeviceHandle.read(self.InPoint.bEndpointAddress, self.InPoint.wMaxPacketSize)
+        except usb.core.USBError as er:
+            # print("DEBUG: Error in RecvData(): {}".format(er.strerror))
+            self.LastError = er
+            return None
+        # print("DEBUG: Read " + str(len(rv)) + " bytes from goggles")
         return rv
+
+    def DevPollLoop(self):
+        self.CheckThreadRunning = True
+        while True:
+            # print("DEBUG: Device poll loop is running...")
+            PriorState = self.DevicePresent
+            self.PollDev()
+            if self.DevicePresent != PriorState:
+                print("DEBUG: Device State changed, new state is " + str(self.DevicePresent))
+                # Adjust the state to the magic packet not having been sent, so a re-init is done
+                self.MagicPacketSent = False
+                # We need to shut down the headset scanner thread because of USB contention:
+                self.CheckThreadRunning = False
+            # Need to validate this works:
+            if self.CheckThreadRunning == False:
+                print("DEBUG: Shutting down device poll loop...")
+                return
+            time.sleep(.5)
+
+    def StartDevCheckThread(self):
+        if self.CheckThreadRunning:
+            return
+        self.DevCheckThreadHandle = threading.Thread(target=self.DevPollLoop)
+        self.DevCheckThreadHandle.start()
