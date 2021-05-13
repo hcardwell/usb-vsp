@@ -2,7 +2,6 @@
 
 import os
 import errno
-import posix
 import time
 import stat
 
@@ -16,13 +15,16 @@ class FIFOWriter:
 
     def Open(self, HandleName = name):
         self.FIFO = HandleName
-        if stat.S_ISFIFO(os.stat(self.FIFO).st_mode) == True:
-            print("DEBUG: Reusing FIFO")
-        else:
-            os.mkfifo(self.FIFO)
+        try:
+            os.remove(self.FIFO)
+        except FileNotFoundError:
+            pass
+
+        # TODO: Windows could use some love here eventually.
+        os.mkfifo(self.FIFO)
 
         try:
-            self.Handle = posix.open(self.FIFO, posix.O_RDWR | posix.O_NONBLOCK)
+            self.Handle = os.open(self.FIFO, os.O_RDWR | os.O_NONBLOCK)
         except OSError as ex:
             if ex.errno == errno.ENXIO:
                 self.LastError = "Exception in Open(): {}".format(ex)
