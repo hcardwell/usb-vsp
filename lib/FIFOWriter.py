@@ -39,7 +39,7 @@ class FIFOWriter:
                 return
         
         try:
-            BytesWritten = posix.write(self.Handle, Data)
+            BytesWritten = os.write(self.Handle, Data)
         except BlockingIOError as e:
             self.LastError = "Exception in Write: {}".format(e)
             return None
