@@ -124,6 +124,8 @@ class USBDev:
             # TODO: Code based?  probably won't work on non en-US
             if "No such device" in er.strerror and not self.CheckThreadRunning:
                 self.DevicePresent = False
+                # And we need to give the first iteration of the detect loop time to finish:
+                time.sleep(2)
                 self.StartDevCheckThread()
             return None
         # print("DEBUG: Read " + str(len(rv)) + " bytes from goggles")
