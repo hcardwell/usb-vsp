@@ -35,7 +35,7 @@ def PrintStatus(update):
     now = time.time()
     if (now - LastStatus) < StatusInterval:
         return
-    print(update['Msg'], end='\r')
+    print(update['Msg'] + "               ", end='\r')
     LastStatus = now
 
 ###############################################################################
