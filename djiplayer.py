@@ -17,7 +17,7 @@ output.Open()
 # print("Writing to FIFO at " + output.FIFO)
 
 # A bit of cheese.  Raspberry Pi OS:
-PlayCmd = "/usr/bin/ffplay -i " + output.FIFO + "-analyzeduration 1 -probesize 32 -sync ext"
+PlayCmd = "/usr/bin/ffplay -i " + output.FIFO + " -analyzeduration 1 -probesize 32 -sync ext"
 WrapPlayCmd = ["/usr/bin/lxterminal", "-e", PlayCmd]
 PlayerProc = None
 
@@ -44,7 +44,9 @@ def StartPlayer():
     global PlayCmd, WrapPlayCmd, PlayerProc
 
     if PlayerProc:
-        PlayerProc.terminate()
+        # PlayerProc.terminate()
+        PlayerProc.kill()
+        subprocess.run(["/usr/bin/killall", "ffplay"])
 
     PlayerProc = subprocess.Popen(WrapPlayCmd)
 
