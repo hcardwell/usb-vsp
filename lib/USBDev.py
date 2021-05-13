@@ -120,6 +120,11 @@ class USBDev:
         except usb.core.USBError as er:
             # print("DEBUG: Error in RecvData(): {}".format(er.strerror))
             self.LastError = er
+            # If the error is "No such device, revert back to device detection"
+            # TODO: Code based?  probably won't work on non en-US
+            if "No such device" in er.strerror and not self.CheckThreadRunning:
+                self.DevicePresent = False
+                self.StartDevCheckThread()
             return None
         # print("DEBUG: Read " + str(len(rv)) + " bytes from goggles")
         return rv
