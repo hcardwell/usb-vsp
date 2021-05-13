@@ -38,6 +38,11 @@ while True:
     if headset.DevicePresent == False:
         # print("Waiting on headset...")
         StatusData['Msg'] = "Waiting on headset..."
+        # If we are waiting on a headset and data has been written, everything needs to be reset:
+        if BytesWritten:
+            BytesWritten = 0
+            output.Reset()
+        # No sense being speedy on the loop when we are waiting on a human
         time.sleep(.5)
         continue
 
