@@ -15,6 +15,8 @@ headset.StartDevCheckThread()
 print("Writing to FIFO at " + output.FIFO)
 BytesWritten = 0
 
+
+
 def PrintStatus(StatusData):
     print("Foo")
 
