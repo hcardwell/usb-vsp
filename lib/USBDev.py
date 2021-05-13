@@ -49,6 +49,7 @@ class USBDev:
         self.CheckThreadRunning = False
         self.ReadThreadRunning = False
         self.LastError = None
+        self.DeviceStatus = None
 
     def PollDev(self):
         dev = usb.core.find(idVendor=VID, idProduct=PID)
@@ -59,6 +60,7 @@ class USBDev:
             self.DeviceInterface = None
             self.InPoint = None
             self.OutPoint = None
+            self.DeviceStatus = None
         else:
             self.DevicePresent = True
             self.DeviceHandle = dev
@@ -93,7 +95,7 @@ class USBDev:
     
     def SendMagicPacket(self):
         magic = bytearray.fromhex(MagicPacket)
-
+        self.DeviceStatus = "Sending Magic Packet"
         # Try a few times to send the magic packet
         # Headset initialization takes time, first attempt might time out
         for x in range(5):       
@@ -105,6 +107,7 @@ class USBDev:
             else:
                 # Successful send
                 self.MagicPacketSent = True
+                self.DeviceStatus = "Magic Packet Sent"
                 return bs
 
     def RecvData(self):
@@ -127,8 +130,13 @@ class USBDev:
                 # And we need to give the first iteration of the detect loop time to finish:
                 time.sleep(2)
                 self.StartDevCheckThread()
+            else:
+                # This is probably a timeout, just waiting for a stream to start:
+                self.DeviceStatus = "Waiting for Stream"
             return None
         # print("DEBUG: Read " + str(len(rv)) + " bytes from goggles")
+        # Successful read if we get here
+        self.DeviceStatus = "Streaming Data"
         return rv
 
     def DevPollLoop(self):
