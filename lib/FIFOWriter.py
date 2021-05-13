@@ -8,6 +8,7 @@ import stat
 name = "/tmp/vsp-fifo"
 
 class FIFOWriter:
+    """FIFO writer class for named pipe output from the DJI headset"""
     def __init__(self):
         self.FIFO = None
         self.LastError = None
@@ -45,3 +46,11 @@ class FIFOWriter:
 
         self.LastError = None
         return BytesWritten
+
+    def Reset(self):
+        # Expunge / delete / recreate the FIFO for stream resets
+        if self.Handle:
+            os.close(self.Handle)
+            self.Handle = None
+
+        self.Open(self.FIFO)
