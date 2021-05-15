@@ -32,6 +32,7 @@ useradd \
     -m \
     -p dji.1234 \
     -s /bin/bash \
+    -G video \
     ${USER_PREF}
 
 
