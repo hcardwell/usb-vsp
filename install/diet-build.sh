@@ -38,8 +38,11 @@ useradd \
 ###############################################################################
 ### Configure auto-login:
 ###############################################################################
-sed -i -e "s/AUTO_SETUP_AUTOSTART_LOGIN_USER=.*/AUTO_SETUP_AUTOSTART_LOGIN_USER=${USER_PREF}/" /boot/dietpi.txt
-/boot/dietpi/dietpi-autostart 2
+
+# This bit seems to break in the fully-automated deployment.
+# The DietPi loader does not seem to detect the change to the alternate user
+# sed -i -e "s/AUTO_SETUP_AUTOSTART_LOGIN_USER=.*/AUTO_SETUP_AUTOSTART_LOGIN_USER=${USER_PREF}/" /boot/dietpi.txt
+# /boot/dietpi/dietpi-autostart 2
 
 ###############################################################################
 ### Install the player wrapper:
