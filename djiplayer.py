@@ -4,6 +4,7 @@ import time
 import os
 # import tkinter as tk
 import subprocess
+import shlex
 
 StartPlayer = True
 StatusInterval = 0.5
@@ -48,7 +49,12 @@ def StartPlayer():
         PlayerProc.kill()
         subprocess.run(["/usr/bin/killall", "ffplay"])
 
-    PlayerProc = subprocess.Popen(WrapPlayCmd)
+    # PlayerProc = subprocess.Popen(WrapPlayCmd)
+    PlayerProc = subprocess.Popen(shlex.split(WrapPlayCmd),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL
+        )
 
 ###############################################################################
 
