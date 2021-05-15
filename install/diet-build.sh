@@ -6,24 +6,7 @@ USER_PREF=dji
 ### Basic System Setup:
 ###############################################################################
 
-# Localization for US:
-echo America/New_York > /etc/timezone
-mv /etc/locale.gen /etc/locale.gen.orig
-echo en_US ISO-8859-1 > /etc/locale.gen
-echo en_US.UTF-8 UTF-8 >> /etc/locale.gen
-locale-gen
-
-# update-locale LANG=en_US LANGUAGE=en_US LC_MESSAGES=en_US
-update-locale LANG=en_US.UTF8 LC_MESSAGES=en_US.UTF8
-
-cat > /etc/default/keyboard <<'_EOF'
-XKBMODEL="pc104"
-XKBLAYOUT="us"
-XKBVARIANT=""
-XKBOPTIONS=""
-BACKSPACE="guess"
-_EOF
-
+# Localization changes and keyboard setup moved to dietpi.txt autoconfiguration
 echo "djiplayer" > /etc/hostname
 
 ###############################################################################
@@ -34,25 +17,11 @@ echo "djiplayer" > /etc/hostname
 ###############################################################################
 ### Install required packages and environment:
 ###############################################################################
-apt-get update
-
-# Use the DietPi framework to install lxde and its dependencies:
-# Now handled by the base image change to dietpi.txt:
-# /boot/dietpi/dietpi-software install 23
-#  23: LXDE
-#  7: FFmpeg
-# 130: python3
-
-# The others we can just do apt like normal:
+# Superfluous with autosetup installation with DietPi
 apt -y install \
     python3-pip \
     git 
-
 pip3 install pyusb
-
-# DietPi uses Dropbear by default:
-# systemctl enable ssh
-# systemctl start ssh
 
 ###############################################################################
 ### Configure the User:
