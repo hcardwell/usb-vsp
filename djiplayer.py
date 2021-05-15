@@ -50,7 +50,7 @@ def StartPlayer():
         subprocess.run(["/usr/bin/killall", "ffplay"])
 
     # PlayerProc = subprocess.Popen(WrapPlayCmd)
-    PlayerProc = subprocess.Popen(shlex.split(WrapPlayCmd),
+    PlayerProc = subprocess.Popen(shlex.split(PlayCmd),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL
