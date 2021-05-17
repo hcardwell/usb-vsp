@@ -18,10 +18,11 @@ class Win32PipeWriter:
 
     def Open(self, HandleName = name):
         """Create and open a named pipe """
+        # Need to get the semantics right for non-blocking with NOWAIT
         self.Handle = win32pipe.CreateNamedPipe(
             r'\\.\pipe\vsp-fifo',
             win32pipe.PIPE_ACCESS_DUPLEX,
-            win32pipe.PIPE_NOWAIT,
+            win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_WAIT,
             1, 65536, 65536,
             0,
             None)
