@@ -1,12 +1,18 @@
 from lib import USBDev
+from lib import Win32PipeWriter
 import time
 import signal
 import sys
 
 StatusInterval = 0.5
 
+# Set up the input:
 headset = USBDev.USBDev()
 headset.StartDevCheckThread()
+
+# And the output:
+output = Win32PipeWriter.Win32PipeWriter()
+output.Open()
 
 # State globals:
 BytesWritten = 0
@@ -68,8 +74,8 @@ while True:
         print(headset.LastError)
         continue
 
-    """
     out = output.Write(packet)
+    """
 
     if out:
         BytesWritten += out
@@ -83,5 +89,4 @@ while True:
 
     # print("In write loop, error: " + str(output.LastError) + ", total bytes written: " + str(BytesWritten))
     StatusData['Msg'] = "Device State: " + headset.DeviceStatus
-    time.sleep(.5)
     # exit()
