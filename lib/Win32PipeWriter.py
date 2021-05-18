@@ -32,10 +32,28 @@ class Win32PipeWriter:
         if self.Handle == None:
             self.LastError = "Pipe not open"
             return None
-        rv = win32file.WriteFile(self.Handle, Data)
-        print("WriteFile returned " + str(rv))
-        return
+
+        try:
+            # WriteFile() returns (ErrCode, BytesWritten)
+            rv = win32file.WriteFile(self.Handle, Data)
+        # TODO get the WriteFile() exception types?
+        except BlockingIOError as e:
+            self.LastError = "Exception in Write: {}".format(e)
+            return None
+
+        self.LastError = None
+
+        # print("WriteFile returned " + str(rv))
+        return rv[1]
 
     def Reset(self):
+        if self.Handle:
+            self.Handle.Close()
+
+        self.Open(self.FIFO)
         return
 
+    def Close(self):
+        if self.Handle:
+            self.Handle.Close()
+            self.Handle = None
