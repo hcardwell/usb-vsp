@@ -6,7 +6,7 @@ import time
 import sys
 import win32pipe, win32file, pywintypes
 
-name = "vsp-fifo"
+name = r'\\.\pipe\vsp-fifo'
 
 class Win32PipeWriter:
     """Class wrapper for writing the DJI stream to a Win32 Named Pipe"""
@@ -20,12 +20,13 @@ class Win32PipeWriter:
         """Create and open a named pipe """
         # Need to get the semantics right for non-blocking with NOWAIT
         self.Handle = win32pipe.CreateNamedPipe(
-            r'\\.\pipe\vsp-fifo',
+            HandleName,
             win32pipe.PIPE_ACCESS_DUPLEX,
             win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_WAIT,
             1, 65536, 65536,
             0,
             None)
+        self.FIFO = HandleName
 
     def Write(self, Data):
         if self.Handle == None:
