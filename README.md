@@ -2,7 +2,12 @@
 ## What It Is:
 This is a repo for Python (using pyusb) code for grabbing the live video feed from the DJI Digital FPV Goggles.  The class design is intended to facilitate a multitude of output scenarios:
 
-- Output to a local FIFO / named pipe, suitable for piping to a local player.  A reference Python class (FIFOWriter) implemented to provide this is included
+- Output to a local FIFO / named pipe, suitable for piping to a local player
+- A reference Python class (FIFOWriter) implemented to provide this for Linux
+- A reference Python class (Win32PipeWriter) implemented to provide this for Windows
+
+Future output scenarios:
+- OBS for live streaming
 - Same named pipe, but consumed as a socket and transmitted over TCP/IP using mbuffer or nc to facilitate even more remote live feeds
 - Internal web server with an HLS transform, etc.
 
@@ -22,6 +27,7 @@ Development was done on Ubuntu Linux 20.04.2 LTS, with Linux as the primary inte
 * Ubuntu 20.04.2 LTS x86_64
 * Ubuntu 20.04.2 LTS aarch64 on Raspberry Pi 4
 * Raspberry Pi OS 'Buster' 2021-03-04 armhf
+* Windows 10 x86_64 works fine via winplayer.py, installation instructions pending
 
 I have other SBCs using various RK3399 and RK3328 chipsets on which I am about to test.
 
