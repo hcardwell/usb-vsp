@@ -122,7 +122,8 @@ class USBDev:
             # rv = self.DeviceHandle.read(self.InPoint.bEndpointAddress, self.InPoint.wMaxPacketSize)
             # The endpoint reported max packet size is 512 bytes on my headset. Trying larger sizes
             # to improve latency and performance on Windows named pipes:
-            # Update: 4K read size seems fine on Linux.  Testing Windows next
+            # Update: 4K read size seems fine on Linux and Windows.  Latency
+            # is much-reduced.  Need to field-test 50Mbit mode 
             rv = self.DeviceHandle.read(self.InPoint.bEndpointAddress, 4096)
         except usb.core.USBError as er:
             # print("DEBUG: Error in RecvData(): {}".format(er.strerror))
